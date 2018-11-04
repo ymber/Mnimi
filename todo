@@ -18,21 +18,33 @@ try:
 except KeyError:
     data_dir = f"{os.environ['HOME']}/.local/share/mnimi"
 
-# Ensure data directory exists
-try:
-    os.mkdir(f"{data_dir}")
-except FileExistsError:
-    pass
-
 todo_list = []
-try:
-    with open(f"{data_dir}/{list_file}", "r") as f:
-        todo_list = json.load(f)
-except FileNotFoundError:
-    with open(f"{data_dir}/{list_file}", "w") as f:
-        json.dump([], f)
 
-if args.new:
+
+def setup_directories():
+    # Ensure data directory exists
+    try:
+        os.mkdir(f"{data_dir}")
+    except FileExistsError:
+        pass
+
+
+def load_list():
+    try:
+        with open(f"{data_dir}/{list_file}", "r") as f:
+            global todo_list
+            todo_list = json.load(f)
+        return 1
+    except FileNotFoundError:
+        if input("No list file found. Create empty list? [Y/n]") != "n":
+            with open(f"{data_dir}/{list_file}", "w") as f:
+                json.dump([], f)
+            return 1
+        else:
+            return 0
+
+
+def new_item():
     item = {}
     item["note"] = input("Note text: ")
     if not item["note"]:
@@ -43,7 +55,8 @@ if args.new:
         with open(f"{data_dir}/{list_file}", "w") as f:
             json.dump(todo_list, f)
 
-elif args.remove != None:
+
+def remove_item():
     try:
         todo_list.pop(args.remove)
         print(f"Removed note {args.remove}")
@@ -52,9 +65,30 @@ elif args.remove != None:
     except IndexError:
         print("No such note. Exiting.")
 
-else:
+
+def print_list():
     if len(todo_list) == 0:
-        print("No items in list")
+        print("No items in list.")
     else:
         for i in range(0, len(todo_list)):
             print(f"{i}) {todo_list[i]['note']} ({todo_list[i]['expiry']})")
+
+
+def main():
+    setup_directories()
+    if not load_list():
+        print("List unavailable. Exiting.")
+        return
+
+    if args.new:
+        new_item()
+
+    elif args.remove != None:
+        remove_item()
+
+    else:
+        print_list()
+
+
+if __name__ == "__main__":
+    main()
