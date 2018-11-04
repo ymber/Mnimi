@@ -3,6 +3,7 @@
 import os
 import argparse
 import json
+import re
 
 list_file = "todo.json"
 # Use XDG base directories
@@ -37,17 +38,34 @@ def load_list():
             return 0
 
 
+def check_date_format(date):
+    r = re.compile("^\d{4}-\d{2}-\d{2}$")
+    if r.match(date) != None:
+        return 1
+    else:
+        return 0
+
+
 def new_item():
     item = {}
-    item["note"] = input("Note text: ")
-    if not item["note"]:
+    note = input("Note text: ")
+    if not note:
         print("No note string entered. Exiting.")
+        return
     else:
-        item["expiry"] = input("Expiry date (YYYY-MM-DD) (optional): ")
-        item["extend"] = input("Extended note (optional): ")
-        todo_list.append(item)
-        with open(f"{data_dir}/{list_file}", "w") as f:
-            json.dump(todo_list, f)
+        item["note"] = note
+
+    expiry = input("Expiry date (YYYY-MM-DD) (optional): ")
+    if check_date_format(expiry) != 1 and expiry != "":
+        print("Invalid date format. Blank date entered.")
+        item["expiry"] = ""
+    else:
+        item["expiry"] = expiry
+
+    item["extend"] = input("Extended note (optional): ")
+    todo_list.append(item)
+    with open(f"{data_dir}/{list_file}", "w") as f:
+        json.dump(todo_list, f)
 
 
 def remove_item(item):
