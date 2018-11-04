@@ -4,6 +4,7 @@ import os
 import argparse
 import json
 import re
+from datetime import datetime
 
 list_file = "todo.json"
 # Use XDG base directories
@@ -88,7 +89,9 @@ def amend_item(item):
             todo_list[item]["note"] = note
 
         print(f"Current expiry date: {todo_list[item]['expiry']}")
-        expiry = input("New expiry date (YYYY-MM-DD) (leave blank to keep current expiry date): ")
+        expiry = input(
+            "New expiry date (YYYY-MM-DD) (leave blank to keep current expiry date): "
+        )
         if not expiry:
             print("Expiry date unchanged")
         elif check_date_format(expiry) != 1:
@@ -97,7 +100,8 @@ def amend_item(item):
             todo_list[item]["expiry"] = expiry
 
         print(f"Current extended note: {todo_list[item]['extend']}")
-        extend = input("New extended note (leave blank to keep current extended note): ")
+        extend = input(
+            "New extended note (leave blank to keep current extended note): ")
         if not extend:
             print("Extended note unchanged.")
         else:
@@ -126,15 +130,30 @@ def print_item(item, extend):
         print("No such note. Exiting.")
 
 
-def print_list(extend):
+def order_by_date():
+    order = [
+        i[0] for i in sorted(
+            enumerate(todo_list),
+            key=lambda x: datetime.strptime(x[1]["expiry"], "%Y-%m-%d"))
+    ]
+    return order
+
+
+def print_list(extend, by_date):
     if len(todo_list) == 0:
         print("No items in list.")
+        return
+
+    if not by_date:
+        order = list(range(0, len(todo_list)))
     else:
-        for i in range(0, len(todo_list)):
-            if extend:
-                print_item(i, True)
-            else:
-                print_item(i, False)
+        order = order_by_date()
+
+    for i in order:
+        if extend:
+            print_item(i, True)
+        else:
+            print_item(i, False)
 
 
 def setup_args():
@@ -145,6 +164,8 @@ def setup_args():
     opts.add_argument(
         "-r", "--remove", type=int, help="remove item from todo list")
     opts.add_argument("-a", "--amend", type=int, help="amend an existing note")
+    opts.add_argument(
+        "-d", "--date", action="store_true", help="order items by expiry date")
     opts.add_argument(
         "-e",
         "--extended",
@@ -173,9 +194,9 @@ def main():
 
     else:
         if args.extended == None:
-            print_list(False)
+            print_list(False, args.date)
         elif args.extended < 0:
-            print_list(True)
+            print_list(True, args.date)
         elif args.extended >= 0:
             print_item(args.extended, True)
 

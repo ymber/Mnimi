@@ -1,4 +1,4 @@
-# MNIMI
+# Mnimi
 
 Mnimi is a simple Python program to record and display notes and todo items. Lists are stored in a JSON file that can easily be parsed by other utilities.
 
