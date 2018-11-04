@@ -57,7 +57,7 @@ def new_item():
 
     expiry = input("Expiry date (YYYY-MM-DD) (optional): ")
     if check_date_format(expiry) != 1 and expiry != "":
-        print("Invalid date format. Blank date entered.")
+        print("Invalid date format. Blank date recorded.")
         item["expiry"] = ""
     else:
         item["expiry"] = expiry
@@ -74,6 +74,38 @@ def remove_item(item):
         print(f"Removed note {item}")
         with open(f"{data_dir}/{list_file}", "w") as f:
             json.dump(todo_list, f)
+    except IndexError:
+        print("No such note. Exiting.")
+
+
+def amend_item(item):
+    try:
+        print(f"Current note: {todo_list[item]['note']}")
+        note = input("New note text (leave blank to keep current note): ")
+        if not note:
+            print("Note unchanged.")
+        else:
+            todo_list[item]["note"] = note
+
+        print(f"Current expiry date: {todo_list[item]['expiry']}")
+        expiry = input("New expiry date (YYYY-MM-DD) (leave blank to keep current expiry date): ")
+        if not expiry:
+            print("Expiry date unchanged")
+        elif check_date_format(expiry) != 1:
+            print("Invalid date format. Recorded date unchanged.")
+        else:
+            todo_list[item]["expiry"] = expiry
+
+        print(f"Current extended note: {todo_list[item]['extend']}")
+        extend = input("New extended note (leave blank to keep current extended note): ")
+        if not extend:
+            print("Extended note unchanged.")
+        else:
+            todo_list[item]["extend"] = extend
+
+        with open(f"{data_dir}/{list_file}", "w") as f:
+            json.dump(todo_list, f)
+
     except IndexError:
         print("No such note. Exiting.")
 
@@ -119,6 +151,7 @@ def setup_args():
         type=int,
         const=-1,
         help="show extended notes for all entries or only the specified entry")
+    opts.add_argument("-a", "--amend", type=int, help="amend an existing note")
     return parser.parse_args()
 
 
@@ -134,6 +167,9 @@ def main():
 
     elif args.remove != None:
         remove_item(args.remove)
+
+    elif args.amend != None:
+        amend_item(args.amend)
 
     else:
         if args.extended == None:
