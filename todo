@@ -84,7 +84,8 @@ def print_item(item, extend):
             print(
                 f"{item}) {todo_list[item]['note']} ({todo_list[item]['expiry']})"
             )
-            print(f"{todo_list[item]['extend']}")
+            if f"{todo_list[item]['extend']}" != "":
+                print(f"{todo_list[item]['extend']}")
         else:
             print(
                 f"{item}) {todo_list[item]['note']} ({todo_list[item]['expiry']})"
