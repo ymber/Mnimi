@@ -6,29 +6,30 @@ import json
 
 parser = argparse.ArgumentParser(description="Record a list of notes")
 nr = parser.add_mutually_exclusive_group()
-nr.add_argument("-n", "--new", action="store_true", help="add new item to todo list")
-nr.add_argument( "-r", "--remove", type=int, help="remove item from todo list")
+nr.add_argument(
+    "-n", "--new", action="store_true", help="add new item to todo list")
+nr.add_argument("-r", "--remove", type=int, help="remove item from todo list")
 args = parser.parse_args()
 
-config = "todo.json"
+list_file = "todo.json"
 # Use XDG base directories
 try:
-    config_dir = f"{os.environ['XDG_CONFIG_HOME']}/mnimi"
+    data_dir = f"{os.environ['XDG_DATA_HOME']}/mnimi"
 except KeyError:
-    config_dir = f"{os.environ['HOME']}/.config/mnimi"
+    data_dir = f"{os.environ['HOME']}/.local/share/mnimi"
 
-# Ensure configuration directory exists
+# Ensure data directory exists
 try:
-    os.mkdir(f"{config_dir}")
+    os.mkdir(f"{data_dir}")
 except FileExistsError:
     pass
 
 todo_list = []
 try:
-    with open(f"{config_dir}/{config}", "r") as f:
+    with open(f"{data_dir}/{list_file}", "r") as f:
         todo_list = json.load(f)
 except FileNotFoundError:
-    with open(f"{config_dir}/{config}", "w") as f:
+    with open(f"{data_dir}/{list_file}", "w") as f:
         json.dump([], f)
 
 if args.new:
@@ -39,14 +40,14 @@ if args.new:
     else:
         item["expiry"] = input("Expiry date (YYYY-MM-DD) (optional): ")
         todo_list.append(item)
-        with open(f"{config_dir}/{config}", "w") as f:
+        with open(f"{data_dir}/{list_file}", "w") as f:
             json.dump(todo_list, f)
 
 elif args.remove != None:
     try:
         todo_list.pop(args.remove)
         print(f"Removed note {args.remove}")
-        with open(f"{config_dir}/{config}", "w") as f:
+        with open(f"{data_dir}/{list_file}", "w") as f:
             json.dump(todo_list, f)
     except IndexError:
         print("No such note. Exiting.")
