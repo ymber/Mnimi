@@ -4,21 +4,6 @@ import os
 import argparse
 import json
 
-parser = argparse.ArgumentParser(description="Record a list of notes")
-opts = parser.add_mutually_exclusive_group()
-opts.add_argument(
-    "-n", "--new", action="store_true", help="add new item to todo list")
-opts.add_argument(
-    "-r", "--remove", type=int, help="remove item from todo list")
-opts.add_argument(
-    "-e",
-    "--extended",
-    nargs="?",
-    type=int,
-    const=-1,
-    help="show extended notes for all entries or only the specified entry")
-args = parser.parse_args()
-
 list_file = "todo.json"
 # Use XDG base directories
 try:
@@ -65,10 +50,10 @@ def new_item():
             json.dump(todo_list, f)
 
 
-def remove_item():
+def remove_item(item):
     try:
-        todo_list.pop(args.remove)
-        print(f"Removed note {args.remove}")
+        todo_list.pop(item)
+        print(f"Removed note {item}")
         with open(f"{data_dir}/{list_file}", "w") as f:
             json.dump(todo_list, f)
     except IndexError:
@@ -101,7 +86,25 @@ def print_list(extend):
                 print_item(i, False)
 
 
+def setup_args():
+    parser = argparse.ArgumentParser(description="Record a list of notes")
+    opts = parser.add_mutually_exclusive_group()
+    opts.add_argument(
+        "-n", "--new", action="store_true", help="add new item to todo list")
+    opts.add_argument(
+        "-r", "--remove", type=int, help="remove item from todo list")
+    opts.add_argument(
+        "-e",
+        "--extended",
+        nargs="?",
+        type=int,
+        const=-1,
+        help="show extended notes for all entries or only the specified entry")
+    return parser.parse_args()
+
+
 def main():
+    args = setup_args()
     setup_directories()
     if not load_list():
         print("List unavailable. Exiting.")
@@ -111,7 +114,7 @@ def main():
         new_item()
 
     elif args.remove != None:
-        remove_item()
+        remove_item(args.remove)
 
     else:
         if args.extended == None:
