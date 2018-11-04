@@ -144,6 +144,7 @@ def setup_args():
         "-n", "--new", action="store_true", help="add new item to todo list")
     opts.add_argument(
         "-r", "--remove", type=int, help="remove item from todo list")
+    opts.add_argument("-a", "--amend", type=int, help="amend an existing note")
     opts.add_argument(
         "-e",
         "--extended",
@@ -151,7 +152,6 @@ def setup_args():
         type=int,
         const=-1,
         help="show extended notes for all entries or only the specified entry")
-    opts.add_argument("-a", "--amend", type=int, help="amend an existing note")
     return parser.parse_args()
 
 
