@@ -5,10 +5,18 @@ import argparse
 import json
 
 parser = argparse.ArgumentParser(description="Record a list of notes")
-nr = parser.add_mutually_exclusive_group()
-nr.add_argument(
+opts = parser.add_mutually_exclusive_group()
+opts.add_argument(
     "-n", "--new", action="store_true", help="add new item to todo list")
-nr.add_argument("-r", "--remove", type=int, help="remove item from todo list")
+opts.add_argument(
+    "-r", "--remove", type=int, help="remove item from todo list")
+opts.add_argument(
+    "-e",
+    "--extended",
+    nargs="?",
+    type=int,
+    const=-1,
+    help="show extended notes for all entries or only the specified entry")
 args = parser.parse_args()
 
 list_file = "todo.json"
@@ -36,7 +44,7 @@ def load_list():
             todo_list = json.load(f)
         return 1
     except FileNotFoundError:
-        if input("No list file found. Create empty list? [Y/n]") != "n":
+        if input("No list file found. Create empty list? [Y/n] ") != "n":
             with open(f"{data_dir}/{list_file}", "w") as f:
                 json.dump([], f)
             return 1
@@ -51,6 +59,7 @@ def new_item():
         print("No note string entered. Exiting.")
     else:
         item["expiry"] = input("Expiry date (YYYY-MM-DD) (optional): ")
+        item["extend"] = input("Extended note (optional): ")
         todo_list.append(item)
         with open(f"{data_dir}/{list_file}", "w") as f:
             json.dump(todo_list, f)
@@ -66,12 +75,30 @@ def remove_item():
         print("No such note. Exiting.")
 
 
-def print_list():
+def print_item(item, extend):
+    try:
+        if extend:
+            print(
+                f"{item}) {todo_list[item]['note']} ({todo_list[item]['expiry']})"
+            )
+            print(f"{todo_list[item]['extend']}")
+        else:
+            print(
+                f"{item}) {todo_list[item]['note']} ({todo_list[item]['expiry']})"
+            )
+    except IndexError:
+        print("No such note. Exiting.")
+
+
+def print_list(extend):
     if len(todo_list) == 0:
         print("No items in list.")
     else:
         for i in range(0, len(todo_list)):
-            print(f"{i}) {todo_list[i]['note']} ({todo_list[i]['expiry']})")
+            if extend:
+                print_item(i, True)
+            else:
+                print_item(i, False)
 
 
 def main():
@@ -87,7 +114,12 @@ def main():
         remove_item()
 
     else:
-        print_list()
+        if args.extended == None:
+            print_list(False)
+        elif args.extended < 0:
+            print_list(True)
+        elif args.extended >= 0:
+            print_item(args.extended, True)
 
 
 if __name__ == "__main__":
