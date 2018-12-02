@@ -3,7 +3,6 @@
 import os
 import argparse
 import json
-import re
 from datetime import datetime
 
 list_file = "todo.json"
@@ -40,10 +39,10 @@ def load_list():
 
 
 def check_date_format(date):
-    r = re.compile("^\d{4}-\d{2}-\d{2}$")
-    if r.match(date) != None:
+    try:
+        datetime.strptime(date, "%Y-%m-%d")
         return 1
-    else:
+    except ValueError:
         return 0
 
 
