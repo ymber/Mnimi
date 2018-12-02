@@ -115,16 +115,12 @@ def amend_item(item):
 
 def print_item(item, extend):
     try:
-        if extend:
-            print(
-                f"{item}) {todo_list[item]['note']} ({todo_list[item]['expiry']})"
-            )
-            if f"{todo_list[item]['extend']}" != "":
-                print(f"{todo_list[item]['extend']}")
-        else:
-            print(
-                f"{item}) {todo_list[item]['note']} ({todo_list[item]['expiry']})"
-            )
+        note_string = f"{item}) {todo_list[item]['note']}"
+        if todo_list[item]["expiry"] != "":
+            note_string += f" ({todo_list[item]['expiry']})"
+        print(note_string)
+        if extend and f"{todo_list[item]['extend']}" != "":
+            print(f"{todo_list[item]['extend']}")
     except IndexError:
         print("No such note. Exiting.")
 
