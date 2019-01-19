@@ -6,8 +6,8 @@ Mnimi is a simple Python program to record and display notes and todo items. Lis
 
 Mnimi requires no special setup. Download the `mnimi` python file, put it somewhere in your `$PATH`, and execute it.
 
-The `mnimi-git` AUR package can be used to install Mnimi on Arch.  
-<https://aur.archlinux.org/packages/mnimi-git/>
+The `mnimi` AUR package can be used to install Mnimi on Arch.  
+<https://aur.archlinux.org/packages/mnimi/>
 
 ## Usage
 
